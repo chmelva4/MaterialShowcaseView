@@ -16,12 +16,15 @@ import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -310,13 +313,21 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             if (!mRenderOverNav && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
 
-                mBottomMargin = getSoftButtonsBarSizePort();
+
+                Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                int rotation  = display.getRotation();
+                mBottomMargin = rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270  ? 0 : getSoftButtonsBarSizePort();
+                int leftMargin = getSoftButtonsBarSizePort() != 0 && rotation == Surface.ROTATION_270 ? getSoftButtonsBarSizePortLandscape() : 0;
+                int rightMargin = getSoftButtonsBarSizePort() != 0 && rotation == Surface.ROTATION_90 ? getSoftButtonsBarSizePortLandscape() : 0;
 
 
                 FrameLayout.LayoutParams contentLP = (LayoutParams) getLayoutParams();
 
-                if (contentLP != null && contentLP.bottomMargin != mBottomMargin)
+                if (contentLP != null) {
                     contentLP.bottomMargin = mBottomMargin;
+                    contentLP.leftMargin = leftMargin;
+                    contentLP.rightMargin = rightMargin;
+                }
             }
 
             // apply the target position
@@ -1094,6 +1105,17 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     public int getSoftButtonsBarSizePort() {
 
         int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            return getResources().getDimensionPixelSize(resourceId);
+        }
+
+        return 0;
+
+    }
+
+    public int getSoftButtonsBarSizePortLandscape() {
+
+        int resourceId = getResources().getIdentifier("navigation_bar_width", "dimen", "android");
         if (resourceId > 0) {
             return getResources().getDimensionPixelSize(resourceId);
         }
