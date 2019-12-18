@@ -544,6 +544,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     public void addShowcaseListener(IShowcaseListener showcaseListener) {
+        if (mListeners == null) mListeners = new ArrayList<>();
         if (mListeners != null)
             mListeners.add(showcaseListener);
     }
